@@ -1,0 +1,20 @@
+{
+  "type": "commonjs",
+  "name": "todo-card-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@vitest/browser": "^4.1.4",
+    "jsdom": "^29.0.2",
+    "vitest": "^4.1.4"
+  }
+}
