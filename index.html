@@ -20,7 +20,6 @@
       --accent-lt: #e2cfa3;
       --danger:    #c0392b;
       --success:   #2ecc71;
-      --info:      #3498db;
       --border:    rgba(200,169,110,.18);
       --shadow:    0 24px 64px rgba(0,0,0,.55), 0 4px 16px rgba(0,0,0,.35);
       --radius:    18px;
@@ -72,9 +71,7 @@
       box-shadow: 0 32px 72px rgba(0,0,0,.6), 0 6px 20px rgba(0,0,0,.4);
     }
 
-    article.done-card {
-      opacity: .72;
-    }
+    article.done-card { opacity: .72; }
 
     @keyframes cardIn {
       from { opacity: 0; transform: translateY(20px) scale(.98); }
@@ -89,7 +86,6 @@
       margin-bottom: 18px;
     }
 
-    /* Checkbox */
     .toggle-wrap {
       flex-shrink: 0;
       margin-top: 4px;
@@ -140,7 +136,6 @@
       transform: scale(1);
     }
 
-    /* Title block */
     .title-block { flex: 1; min-width: 0; }
 
     h2[data-testid="test-todo-title"] {
@@ -167,15 +162,10 @@
       transition: transform .35s cubic-bezier(.4,0,.2,1);
     }
 
-    article.done-card h2[data-testid="test-todo-title"] {
-      color: var(--muted);
-    }
+    article.done-card h2[data-testid="test-todo-title"] { color: var(--muted); }
+    article.done-card h2[data-testid="test-todo-title"]::after { transform: scaleX(1); }
 
-    article.done-card h2[data-testid="test-todo-title"]::after {
-      transform: scaleX(1);
-    }
-
-    /* ── PRIORITY BADGE ── */
+    /* ── PRIORITY & STATUS ── */
     .meta-row {
       display: flex;
       align-items: center;
@@ -199,7 +189,6 @@
     .priority-medium { color: var(--accent); background: rgba(200,169,110,.12); }
     .priority-low    { color: #2ecc71; background: rgba(46,204,113,.1); }
 
-    /* Status */
     span[data-testid="test-todo-status"] {
       font-family: 'DM Mono', monospace;
       font-size: .72rem;
@@ -362,13 +351,139 @@
 
     .action-btn:active { transform: translateY(0) scale(.97); }
 
-    /* ── ACCENT LINE ── */
     .top-line {
       position: absolute;
       top: 0; left: 32px; right: 32px;
       height: 3px;
       background: linear-gradient(90deg, transparent, var(--accent), transparent);
       border-radius: 0 0 3px 3px;
+    }
+
+    /* ── MODAL OVERLAY ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── MODAL FORM ── */
+    .modal {
+      background: #1c1c1c;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 32px 80px rgba(0,0,0,.6);
+      transform: translateY(16px) scale(.97);
+      transition: transform .3s cubic-bezier(.22,1,.36,1);
+      position: relative;
+    }
+
+    .modal-overlay.open .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      color: var(--card-fg);
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      font-family: 'DM Mono', monospace;
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--card-fg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color var(--transition);
+      resize: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .form-group textarea { min-height: 90px; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn-cancel {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted);
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+
+    .btn-cancel:hover { background: rgba(255,255,255,.09); }
+
+    .btn-save {
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: #141414;
+      padding: 9px 22px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .btn-save:hover {
+      background: var(--accent-lt);
+      transform: translateY(-1px);
+    }
+
+    .btn-cancel:focus-visible,
+    .btn-save:focus-visible {
+      outline: 3px solid var(--accent-lt);
+      outline-offset: 3px;
     }
 
     /* ── RESPONSIVE ── */
@@ -387,14 +502,14 @@
 </head>
 <body>
 
+<!-- ── CARD ── -->
 <article
   data-testid="test-todo-card"
   role="region"
-  aria-label="Task: Redesign the onboarding flow"
+  aria-label="Task: Update Patient Intake Records"
 >
   <div class="top-line" aria-hidden="true"></div>
 
-  <!-- HEADER: checkbox + title -->
   <div class="card-header">
     <label class="toggle-wrap">
       <input
@@ -410,18 +525,16 @@
     </label>
 
     <div class="title-block">
-      <h2 data-testid="test-todo-title">Redesign the Onboarding Flow</h2>
+      <h2 data-testid="test-todo-title" id="task-title">Update Patient Intake Records</h2>
     </div>
   </div>
 
-  <!-- PRIORITY + STATUS -->
   <div class="meta-row">
     <span
       data-testid="test-todo-priority"
       class="priority-high"
       aria-label="Priority: High"
     >⚡ High</span>
-
     <span
       data-testid="test-todo-status"
       id="status-badge"
@@ -429,28 +542,21 @@
     >In Progress</span>
   </div>
 
-  <!-- DESCRIPTION -->
-  <p data-testid="test-todo-description">
-    Revamp the user onboarding experience — reduce drop-off at Step 3,
-    simplify account setup, and introduce contextual tooltips for first-time users.
+  <p data-testid="test-todo-description" id="task-description">
+    Review and update all patient intake forms submitted this week. Ensure
+    records are accurate, properly dated, and filed in the correct folders
+    before end-of-day handover at the clinic.
   </p>
 
-  <!-- TAGS -->
   <ul data-testid="test-todo-tags" role="list" aria-label="Task tags">
     <li data-testid="test-todo-tag-work">work</li>
-    <li data-testid="test-todo-tag-urgent">urgent</li>
-    <li>design</li>
+    <li data-testid="test-todo-tag-urgent">mandatory</li>
   </ul>
 
-  <!-- DUE DATE + TIME REMAINING -->
   <div class="dates-row">
     <div class="date-item">
       <span class="date-label">Due date</span>
-      <time
-        data-testid="test-todo-due-date"
-        id="due-date-display"
-        datetime=""
-      >—</time>
+      <time data-testid="test-todo-due-date" id="due-date-display" datetime="">—</time>
     </div>
     <div class="date-item" style="text-align:right;">
       <span class="date-label">Remaining</span>
@@ -463,13 +569,12 @@
     </div>
   </div>
 
-  <!-- ACTIONS -->
   <div class="actions-row">
     <button
       data-testid="test-todo-edit-button"
       class="action-btn"
       aria-label="Edit task"
-      onclick="handleEdit()"
+      onclick="openEditModal()"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Edit
@@ -486,88 +591,129 @@
   </div>
 </article>
 
+<!-- ── EDIT MODAL ── -->
+<div
+  class="modal-overlay"
+  id="edit-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-heading"
+>
+  <div class="modal">
+    <h3 class="modal-title" id="modal-heading">Edit Task</h3>
+
+    <div class="form-group">
+      <label for="edit-title">Task Title</label>
+      <input type="text" id="edit-title" placeholder="Enter task title" />
+    </div>
+
+    <div class="form-group">
+      <label for="edit-description">Description</label>
+      <textarea id="edit-description" placeholder="Enter task description"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // ── CONFIG ──────────────────────────────────────────────
-  // Due date: fixed target (edit freely)
-  const DUE = new Date('2026-04-14T18:00:00Z');
+  const DUE = new Date('2026-04-16T17:00:00Z');
 
-  // ── ELEMENTS ────────────────────────────────────────────
-  const card       = document.querySelector('[data-testid="test-todo-card"]');
-  const checkbox   = document.querySelector('[data-testid="test-todo-complete-toggle"]');
-  const statusBadge= document.getElementById('status-badge');
-  const dueDateEl  = document.getElementById('due-date-display');
-  const remainEl   = document.getElementById('time-remaining');
+  const card        = document.querySelector('[data-testid="test-todo-card"]');
+  const checkbox    = document.querySelector('[data-testid="test-todo-complete-toggle"]');
+  const statusBadge = document.getElementById('status-badge');
+  const dueDateEl   = document.getElementById('due-date-display');
+  const remainEl    = document.getElementById('time-remaining');
+  const modal       = document.getElementById('edit-modal');
+  const editTitle   = document.getElementById('edit-title');
+  const editDesc    = document.getElementById('edit-description');
+  const taskTitle   = document.getElementById('task-title');
+  const taskDesc    = document.getElementById('task-description');
 
-  // ── DATE FORMATTING ─────────────────────────────────────
+  // ── TIME ────────────────────────────────────────────────
   function formatDueDate(date) {
-    return date.toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric'
-    }); // e.g. "Apr 14, 2026"
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   function computeRemaining(now, due) {
-    const diff = due - now; // ms
+    const diff = due - now;
     const abs  = Math.abs(diff);
     const mins = Math.floor(abs / 60000);
     const hrs  = Math.floor(abs / 3600000);
     const days = Math.floor(abs / 86400000);
-
     const over = diff < 0;
     let text, cls;
 
-    if (abs < 120000) {
-      // within 2 minutes
-      text = 'Due now!'; cls = 'time-now';
-    } else if (!over && mins < 60) {
-      text = `Due in ${mins} min${mins !== 1 ? 's' : ''}`; cls = 'time-soon';
-    } else if (!over && hrs < 24) {
-      text = hrs === 1 ? 'Due in 1 hour' : `Due in ${hrs} hours`; cls = 'time-soon';
-    } else if (!over && days === 1) {
-      text = 'Due tomorrow'; cls = 'time-soon';
-    } else if (!over) {
-      text = `Due in ${days} days`; cls = 'time-ok';
-    } else if (over && hrs < 24) {
-      text = hrs < 1
-        ? `Overdue by ${mins} min${mins !== 1 ? 's' : ''}`
-        : `Overdue by ${hrs} hour${hrs !== 1 ? 's' : ''}`;
-      cls = 'time-overdue';
-    } else {
-      text = `Overdue by ${days} day${days !== 1 ? 's' : ''}`; cls = 'time-overdue';
-    }
+    if (abs < 120000)            { text = 'Due now!'; cls = 'time-now'; }
+    else if (!over && mins < 60) { text = `Due in ${mins} min${mins !== 1 ? 's' : ''}`; cls = 'time-soon'; }
+    else if (!over && hrs < 24)  { text = hrs === 1 ? 'Due in 1 hour' : `Due in ${hrs} hours`; cls = 'time-soon'; }
+    else if (!over && days === 1){ text = 'Due tomorrow'; cls = 'time-soon'; }
+    else if (!over)              { text = `Due in ${days} days`; cls = 'time-ok'; }
+    else if (over && hrs < 24)   { text = hrs < 1 ? `Overdue by ${mins} mins` : `Overdue by ${hrs} hour${hrs !== 1 ? 's' : ''}`; cls = 'time-overdue'; }
+    else                         { text = `Overdue by ${days} day${days !== 1 ? 's' : ''}`; cls = 'time-overdue'; }
 
     return { text, cls };
   }
 
   function updateTime() {
-    const now = new Date();
-    const { text, cls } = computeRemaining(now, DUE);
-
-    // Set due date display once
+    const { text, cls } = computeRemaining(new Date(), DUE);
     dueDateEl.textContent = 'Due ' + formatDueDate(DUE);
     dueDateEl.setAttribute('datetime', DUE.toISOString());
-
-    // Update remaining
     remainEl.textContent = text;
-    remainEl.className = '';
-    remainEl.classList.add(cls);
+    remainEl.className = cls;
     remainEl.setAttribute('aria-label', `Time remaining: ${text}`);
   }
 
-  // ── CHECKBOX TOGGLE ─────────────────────────────────────
+  // ── CHECKBOX ────────────────────────────────────────────
   checkbox.addEventListener('change', () => {
     const done = checkbox.checked;
-
     card.classList.toggle('done-card', done);
-
     statusBadge.textContent = done ? 'Done' : 'In Progress';
     statusBadge.classList.toggle('status-done', done);
   });
 
-  // ── BUTTON HANDLERS ─────────────────────────────────────
-  function handleEdit() {
-    console.log('edit clicked');
+  // ── EDIT MODAL ──────────────────────────────────────────
+  function openEditModal() {
+    editTitle.value = taskTitle.textContent.trim();
+    editDesc.value  = taskDesc.textContent.trim();
+    modal.classList.add('open');
+    setTimeout(() => editTitle.focus(), 50);
   }
 
+  function closeEditModal() {
+    modal.classList.remove('open');
+  }
+
+  function saveEdit() {
+    const newTitle = editTitle.value.trim();
+    const newDesc  = editDesc.value.trim();
+
+    if (!newTitle) {
+      editTitle.focus();
+      editTitle.style.borderColor = '#e74c3c';
+      return;
+    }
+
+    taskTitle.textContent = newTitle;
+    taskDesc.textContent  = newDesc;
+    card.setAttribute('aria-label', `Task: ${newTitle}`);
+    closeEditModal();
+  }
+
+  // Close modal on overlay click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeEditModal();
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeEditModal();
+  });
+
+  // ── DELETE ──────────────────────────────────────────────
   function handleDelete() {
     if (confirm('Delete this task?')) {
       card.style.transition = 'opacity .3s, transform .3s';
@@ -577,7 +723,7 @@
     }
   }
 
-  // ── INIT + INTERVAL ─────────────────────────────────────
+  // ── INIT ────────────────────────────────────────────────
   updateTime();
   setInterval(updateTime, 60000);
 </script>
