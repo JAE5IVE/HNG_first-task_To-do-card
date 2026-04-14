@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Todo Task Card</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>" />
+  <title>Todo Task Card</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -12,19 +12,22 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink:       #0d0d0d;
-      --paper:     #f5f0e8;
-      --card-bg:   #141414;
-      --card-fg:   #e8e2d5;
-      --muted:     #6b6560;
-      --accent:    #c8a96e;
-      --accent-lt: #e2cfa3;
-      --danger:    #c0392b;
-      --success:   #2ecc71;
-      --border:    rgba(200,169,110,.18);
-      --shadow:    0 24px 64px rgba(0,0,0,.55), 0 4px 16px rgba(0,0,0,.35);
-      --radius:    18px;
-      --transition: .28s cubic-bezier(.4,0,.2,1);
+      --paper:      #f5f0e8;
+      --card-bg:    #141414;
+      --card-fg:    #e8e2d5;
+      --muted:      #6b6560;
+      --accent:     #c8a96e;
+      --accent-lt:  #e2cfa3;
+      --border:     rgba(200,169,110,.18);
+      --shadow:     0 24px 64px rgba(0,0,0,.55), 0 4px 16px rgba(0,0,0,.35);
+      --radius:     18px;
+      --t:          .26s cubic-bezier(.4,0,.2,1);
+      --high:       #e74c3c;
+      --high-bg:    rgba(231,76,60,.12);
+      --medium:     #c8a96e;
+      --medium-bg:  rgba(200,169,110,.12);
+      --low:        #2ecc71;
+      --low-bg:     rgba(46,204,113,.1);
     }
 
     html { scroll-behavior: smooth; }
@@ -43,19 +46,18 @@
       padding: 24px 16px;
     }
 
-    /* ── CARD ── */
+    /* ══ CARD ══ */
     article[data-testid="test-todo-card"] {
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       background: var(--card-bg);
       color: var(--card-fg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
-      padding: 32px 30px 26px;
       position: relative;
       overflow: hidden;
-      transition: transform var(--transition), box-shadow var(--transition);
+      transition: transform var(--t), box-shadow var(--t), border-color var(--t);
       animation: cardIn .55s cubic-bezier(.22,1,.36,1) both;
     }
 
@@ -63,581 +65,546 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(200,169,110,.07) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(200,169,110,.06) 0%, transparent 60%);
       pointer-events: none;
+      z-index: 0;
     }
 
     article[data-testid="test-todo-card"]:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       box-shadow: 0 32px 72px rgba(0,0,0,.6), 0 6px 20px rgba(0,0,0,.4);
     }
 
-    article.done-card { opacity: .72; }
+    /* Priority left-border indicator */
+    [data-testid="test-todo-priority-indicator"] {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: var(--radius) 0 0 var(--radius);
+      transition: background var(--t);
+      z-index: 1;
+    }
+
+    .priority-high-ind   { background: var(--high); }
+    .priority-medium-ind { background: var(--medium); }
+    .priority-low-ind    { background: var(--low); }
+
+    article.overdue-card { border-color: rgba(231,76,60,.35); }
+    article.done-card    { opacity: .75; }
 
     @keyframes cardIn {
       from { opacity: 0; transform: translateY(20px) scale(.98); }
-      to   { opacity: 1; transform: translateY(0)   scale(1);   }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* ── HEADER ROW ── */
-    .card-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      margin-bottom: 18px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(.97); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
-    .toggle-wrap {
-      flex-shrink: 0;
-      margin-top: 4px;
-      position: relative;
+    .top-line {
+      position: absolute;
+      top: 0; left: 36px; right: 36px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      border-radius: 0 0 3px 3px;
+      z-index: 1;
     }
+
+    /* ── CARD INNER ── */
+    .card-inner { padding: 30px 28px 24px 32px; position: relative; z-index: 1; }
+
+    /* ── HEADER ── */
+    .card-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+
+    .toggle-wrap { flex-shrink: 0; margin-top: 3px; position: relative; }
 
     .toggle-wrap input[type="checkbox"] {
-      position: absolute;
-      opacity: 0;
-      width: 26px;
-      height: 26px;
-      cursor: pointer;
-      z-index: 2;
-      margin: 0;
+      position: absolute; opacity: 0;
+      width: 26px; height: 26px;
+      cursor: pointer; z-index: 2; margin: 0;
     }
 
     .toggle-wrap .box {
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
+      width: 26px; height: 26px; border-radius: 8px;
       border: 2px solid var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background var(--transition), border-color var(--transition), transform var(--transition);
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--t), border-color var(--t), transform var(--t);
       pointer-events: none;
     }
 
-    .toggle-wrap input:focus-visible + .box {
-      outline: 3px solid var(--accent-lt);
-      outline-offset: 3px;
-    }
-
-    .toggle-wrap input:checked + .box {
-      background: var(--accent);
-      border-color: var(--accent);
-      transform: scale(.92);
-    }
-
-    .toggle-wrap .box svg {
-      opacity: 0;
-      transform: scale(.5);
-      transition: opacity .2s, transform .2s;
-    }
-
-    .toggle-wrap input:checked + .box svg {
-      opacity: 1;
-      transform: scale(1);
-    }
+    .toggle-wrap input:focus-visible + .box { outline: 3px solid var(--accent-lt); outline-offset: 3px; }
+    .toggle-wrap input:checked + .box { background: var(--accent); border-color: var(--accent); transform: scale(.92); }
+    .toggle-wrap .box svg { opacity: 0; transform: scale(.5); transition: opacity .2s, transform .2s; }
+    .toggle-wrap input:checked + .box svg { opacity: 1; transform: scale(1); }
 
     .title-block { flex: 1; min-width: 0; }
 
     h2[data-testid="test-todo-title"] {
       font-family: 'Playfair Display', serif;
       font-weight: 700;
-      font-size: clamp(1.15rem, 4vw, 1.35rem);
+      font-size: clamp(1.1rem, 3.5vw, 1.3rem);
       line-height: 1.25;
       color: var(--card-fg);
-      transition: color var(--transition);
-      position: relative;
-      display: inline-block;
-      max-width: 100%;
+      transition: color var(--t);
     }
 
-    h2[data-testid="test-todo-title"]::after {
-      content: '';
-      position: absolute;
-      left: 0; right: 0;
-      top: 50%;
-      height: 2px;
-      background: var(--muted);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform .35s cubic-bezier(.4,0,.2,1);
+    article.done-card h2[data-testid="test-todo-title"] {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-color: var(--muted);
     }
 
-    article.done-card h2[data-testid="test-todo-title"] { color: var(--muted); }
-    article.done-card h2[data-testid="test-todo-title"]::after { transform: scaleX(1); }
-
-    /* ── PRIORITY & STATUS ── */
-    .meta-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
+    /* ── META ROW ── */
+    .meta-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 
     span[data-testid="test-todo-priority"] {
       font-family: 'DM Mono', monospace;
-      font-size: .72rem;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 4px 11px;
-      border-radius: 100px;
+      font-size: .68rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
       border: 1px solid currentColor;
     }
 
-    .priority-high   { color: #e74c3c; background: rgba(231,76,60,.12); }
-    .priority-medium { color: var(--accent); background: rgba(200,169,110,.12); }
-    .priority-low    { color: #2ecc71; background: rgba(46,204,113,.1); }
+    .priority-high   { color: var(--high);   background: var(--high-bg); }
+    .priority-medium { color: var(--medium); background: var(--medium-bg); }
+    .priority-low    { color: var(--low);    background: var(--low-bg); }
 
     span[data-testid="test-todo-status"] {
       font-family: 'DM Mono', monospace;
-      font-size: .72rem;
-      font-weight: 500;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      padding: 4px 11px;
-      border-radius: 100px;
-      background: rgba(255,255,255,.06);
+      font-size: .68rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+      transition: background var(--t), color var(--t), border-color var(--t);
+    }
+
+    .status-pending     { color: var(--accent); background: rgba(200,169,110,.1);  border: 1px solid rgba(200,169,110,.25); }
+    .status-in-progress { color: #3498db;       background: rgba(52,152,219,.1);   border: 1px solid rgba(52,152,219,.25); }
+    .status-done        { color: var(--low);    background: rgba(46,204,113,.1);   border: 1px solid rgba(46,204,113,.25); }
+
+    /* Overdue indicator */
+    [data-testid="test-todo-overdue-indicator"] {
+      font-family: 'DM Mono', monospace;
+      font-size: .65rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--high); background: rgba(231,76,60,.12);
+      border: 1px solid rgba(231,76,60,.3);
+      padding: 2px 9px; border-radius: 100px;
+      display: none; animation: fadeIn .3s ease;
+    }
+
+    [data-testid="test-todo-overdue-indicator"].visible { display: inline-flex; align-items: center; gap: 4px; }
+
+    /* ── STATUS CONTROL ── */
+    .status-control-wrap { margin-bottom: 14px; }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: .6rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    select[data-testid="test-todo-status-control"] {
+      font-family: 'DM Mono', monospace; font-size: .75rem;
+      background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.1);
-      transition: background var(--transition), color var(--transition);
+      border-radius: 8px; color: var(--card-fg);
+      padding: 6px 28px 6px 12px; cursor: pointer;
+      outline: none; transition: border-color var(--t);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6560'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
     }
 
-    .status-done {
-      background: rgba(46,204,113,.12) !important;
-      color: #2ecc71 !important;
-      border-color: rgba(46,204,113,.3) !important;
+    select[data-testid="test-todo-status-control"]:focus {
+      border-color: var(--accent);
+      outline: 3px solid rgba(200,169,110,.3);
+      outline-offset: 2px;
     }
 
-    /* ── DESCRIPTION ── */
+    /* ── DESCRIPTION / COLLAPSIBLE ── */
+    .description-wrap { margin-bottom: 16px; }
+
     p[data-testid="test-todo-description"] {
-      font-size: .93rem;
-      font-weight: 300;
-      line-height: 1.65;
-      color: rgba(232,226,213,.65);
-      margin-bottom: 20px;
-      font-style: italic;
+      font-size: .9rem; font-weight: 300; line-height: 1.65;
+      color: rgba(232,226,213,.65); font-style: italic;
     }
+
+    [data-testid="test-todo-collapsible-section"] {
+      overflow: hidden;
+      max-height: 0; opacity: 0;
+      transition: max-height .35s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+    }
+
+    [data-testid="test-todo-collapsible-section"].expanded { max-height: 300px; opacity: 1; }
+
+    .full-desc {
+      font-size: .9rem; font-weight: 300; line-height: 1.65;
+      color: rgba(232,226,213,.65); font-style: italic;
+      padding-top: 6px;
+    }
+
+    button[data-testid="test-todo-expand-toggle"] {
+      font-family: 'DM Mono', monospace; font-size: .68rem;
+      letter-spacing: .07em; color: var(--accent);
+      background: none; border: none; cursor: pointer;
+      padding: 4px 0; margin-top: 4px;
+      display: inline-flex; align-items: center; gap: 5px;
+      transition: color var(--t);
+    }
+
+    button[data-testid="test-todo-expand-toggle"]:hover { color: var(--accent-lt); }
+    button[data-testid="test-todo-expand-toggle"]:focus-visible {
+      outline: 2px solid var(--accent-lt); outline-offset: 3px; border-radius: 4px;
+    }
+
+    .expand-arrow { display: inline-block; transition: transform .3s; }
+    .expand-arrow.open { transform: rotate(180deg); }
 
     /* ── TAGS ── */
     ul[data-testid="test-todo-tags"] {
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 22px;
+      list-style: none; display: flex; flex-wrap: wrap;
+      gap: 7px; margin-bottom: 18px;
     }
 
     ul[data-testid="test-todo-tags"] li {
-      font-family: 'DM Mono', monospace;
-      font-size: .7rem;
-      font-weight: 400;
-      letter-spacing: .07em;
-      padding: 4px 12px;
-      border-radius: 6px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.08);
+      font-family: 'DM Mono', monospace; font-size: .67rem;
+      letter-spacing: .07em; padding: 3px 11px; border-radius: 6px;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
       color: var(--accent-lt);
-      transition: background var(--transition), transform var(--transition);
-      cursor: default;
+      transition: background var(--t), transform var(--t); cursor: default;
     }
 
-    ul[data-testid="test-todo-tags"] li:hover {
-      background: rgba(200,169,110,.12);
-      transform: translateY(-1px);
-    }
+    ul[data-testid="test-todo-tags"] li:hover { background: rgba(200,169,110,.12); transform: translateY(-1px); }
 
     /* ── DATES ROW ── */
     .dates-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 22px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid var(--border);
-      flex-wrap: wrap;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 20px; padding: 12px 15px;
+      border-radius: 12px; background: rgba(255,255,255,.04);
+      border: 1px solid var(--border); flex-wrap: wrap;
+      transition: border-color var(--t);
     }
+
+    .dates-row.overdue-dates { border-color: rgba(231,76,60,.3); }
 
     .date-item { display: flex; flex-direction: column; gap: 3px; }
-
-    .date-label {
-      font-family: 'DM Mono', monospace;
-      font-size: .62rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
+    .date-label { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .time-right { text-align: right; }
 
     time[data-testid="test-todo-due-date"] {
-      font-family: 'DM Mono', monospace;
-      font-size: .82rem;
-      color: var(--accent-lt);
-      font-weight: 500;
+      font-family: 'DM Mono', monospace; font-size: .8rem;
+      color: var(--accent-lt); font-weight: 500;
     }
 
     span[data-testid="test-todo-time-remaining"] {
-      font-family: 'DM Mono', monospace;
-      font-size: .82rem;
-      font-weight: 500;
+      font-family: 'DM Mono', monospace; font-size: .8rem; font-weight: 500;
+      transition: color var(--t);
     }
 
-    .time-overdue  { color: #e74c3c; }
-    .time-soon     { color: var(--accent); }
-    .time-ok       { color: #2ecc71; }
-    .time-now      { color: #e74c3c; animation: pulse 1s infinite; }
+    .time-overdue { color: var(--high); }
+    .time-soon    { color: var(--accent); }
+    .time-ok      { color: var(--low); }
+    .time-now     { color: var(--high); animation: pulse 1s infinite; }
+    .time-done    { color: var(--muted); }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: .5; }
-    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-    /* ── ACTIONS ROW ── */
+    /* ── ACTIONS ── */
     .actions-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-      border-top: 1px solid var(--border);
-      padding-top: 18px;
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 8px; border-top: 1px solid var(--border); padding-top: 16px;
     }
 
     .action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .82rem;
-      font-weight: 500;
-      padding: 8px 18px;
-      border-radius: 10px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
-      letter-spacing: .02em;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'DM Sans', sans-serif; font-size: .8rem; font-weight: 500;
+      padding: 7px 16px; border-radius: 10px; border: 1px solid transparent;
+      cursor: pointer; letter-spacing: .02em;
+      transition: background var(--t), border-color var(--t), transform var(--t), box-shadow var(--t);
     }
 
-    .action-btn:focus-visible {
-      outline: 3px solid var(--accent-lt);
-      outline-offset: 3px;
+    .action-btn:focus-visible { outline: 3px solid var(--accent-lt); outline-offset: 3px; }
+    .action-btn:active { transform: scale(.97); }
+
+    button[data-testid="test-todo-edit-button"] { background: rgba(200,169,110,.1); border-color: rgba(200,169,110,.25); color: var(--accent-lt); }
+    button[data-testid="test-todo-edit-button"]:hover { background: rgba(200,169,110,.2); border-color: rgba(200,169,110,.45); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(200,169,110,.15); }
+
+    button[data-testid="test-todo-delete-button"] { background: rgba(192,57,43,.08); border-color: rgba(192,57,43,.2); color: #e57368; }
+    button[data-testid="test-todo-delete-button"]:hover { background: rgba(192,57,43,.18); border-color: rgba(192,57,43,.4); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(192,57,43,.15); }
+
+    /* ══ EDIT FORM ══ */
+    [data-testid="test-todo-edit-form"] {
+      display: none; flex-direction: column; gap: 14px;
+      padding: 28px 28px 24px 32px;
+      position: relative; z-index: 1;
+      animation: fadeIn .2s ease;
     }
 
-    button[data-testid="test-todo-edit-button"] {
-      background: rgba(200,169,110,.1);
-      border-color: rgba(200,169,110,.25);
-      color: var(--accent-lt);
-    }
+    [data-testid="test-todo-edit-form"].active { display: flex; }
 
-    button[data-testid="test-todo-edit-button"]:hover {
-      background: rgba(200,169,110,.2);
-      border-color: rgba(200,169,110,.4);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(200,169,110,.15);
-    }
+    .edit-heading { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--card-fg); margin-bottom: 2px; }
 
-    button[data-testid="test-todo-delete-button"] {
-      background: rgba(192,57,43,.08);
-      border-color: rgba(192,57,43,.2);
-      color: #e57368;
-    }
-
-    button[data-testid="test-todo-delete-button"]:hover {
-      background: rgba(192,57,43,.18);
-      border-color: rgba(192,57,43,.4);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(192,57,43,.15);
-    }
-
-    .action-btn:active { transform: translateY(0) scale(.97); }
-
-    .top-line {
-      position: absolute;
-      top: 0; left: 32px; right: 32px;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      border-radius: 0 0 3px 3px;
-    }
-
-    /* ── MODAL OVERLAY ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.7);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s ease;
-    }
-
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    /* ── MODAL FORM ── */
-    .modal {
-      background: #1c1c1c;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 28px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 32px 80px rgba(0,0,0,.6);
-      transform: translateY(16px) scale(.97);
-      transition: transform .3s cubic-bezier(.22,1,.36,1);
-      position: relative;
-    }
-
-    .modal-overlay.open .modal {
-      transform: translateY(0) scale(1);
-    }
-
-    .modal-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
-      color: var(--card-fg);
-      margin-bottom: 24px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 18px;
-    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
 
     .form-group label {
-      font-family: 'DM Mono', monospace;
-      font-size: .68rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--muted);
+      font-family: 'DM Mono', monospace; font-size: .63rem;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
     }
 
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       background: rgba(255,255,255,.05);
       border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px;
-      padding: 10px 14px;
-      color: var(--card-fg);
-      font-family: 'DM Sans', sans-serif;
-      font-size: .9rem;
-      outline: none;
-      transition: border-color var(--transition);
-      resize: none;
+      border-radius: 10px; padding: 9px 13px;
+      color: var(--card-fg); font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; outline: none; width: 100%;
+      transition: border-color var(--t);
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus {
-      border-color: var(--accent);
+    .form-group input[type="date"] { color-scheme: dark; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { min-height: 80px; resize: none; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .edit-actions {
+      display: flex; justify-content: flex-end; gap: 8px;
+      padding-top: 8px; border-top: 1px solid var(--border);
     }
 
-    .form-group textarea { min-height: 90px; }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 24px;
+    button[data-testid="test-todo-cancel-button"] {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      color: var(--muted); padding: 8px 18px; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: .82rem; cursor: pointer;
+      transition: background var(--t);
     }
 
-    .btn-cancel {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      color: var(--muted);
-      padding: 9px 20px;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .85rem;
-      cursor: pointer;
-      transition: background var(--transition);
+    button[data-testid="test-todo-cancel-button"]:hover { background: rgba(255,255,255,.09); }
+    button[data-testid="test-todo-cancel-button"]:focus-visible { outline: 3px solid var(--accent-lt); outline-offset: 3px; }
+
+    button[data-testid="test-todo-save-button"] {
+      background: var(--accent); border: 1px solid var(--accent); color: #141414;
+      padding: 8px 20px; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 600;
+      cursor: pointer; transition: background var(--t), transform var(--t);
     }
 
-    .btn-cancel:hover { background: rgba(255,255,255,.09); }
-
-    .btn-save {
-      background: var(--accent);
-      border: 1px solid var(--accent);
-      color: #141414;
-      padding: 9px 22px;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: .85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
-    }
-
-    .btn-save:hover {
-      background: var(--accent-lt);
-      transform: translateY(-1px);
-    }
-
-    .btn-cancel:focus-visible,
-    .btn-save:focus-visible {
-      outline: 3px solid var(--accent-lt);
-      outline-offset: 3px;
-    }
+    button[data-testid="test-todo-save-button"]:hover { background: var(--accent-lt); transform: translateY(-1px); }
+    button[data-testid="test-todo-save-button"]:focus-visible { outline: 3px solid var(--accent-lt); outline-offset: 3px; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 480px) {
-      article[data-testid="test-todo-card"] {
-        padding: 26px 20px 22px;
-        border-radius: 14px;
-      }
-      .dates-row { gap: 10px; }
+      .card-inner, [data-testid="test-todo-edit-form"] { padding: 24px 18px 20px 22px; }
+      .form-row { grid-template-columns: 1fr; }
     }
-
-    @media (max-width: 360px) {
-      h2[data-testid="test-todo-title"] { font-size: 1.05rem; }
-    }
+    @media (max-width: 360px) { h2[data-testid="test-todo-title"] { font-size: 1rem; } }
   </style>
 </head>
 <body>
 
-<!-- ── CARD ── -->
 <article
   data-testid="test-todo-card"
   role="region"
   aria-label="Task: Update Patient Intake Records"
 >
+  <div data-testid="test-todo-priority-indicator" class="priority-high-ind" aria-hidden="true"></div>
   <div class="top-line" aria-hidden="true"></div>
 
-  <div class="card-header">
-    <label class="toggle-wrap">
-      <input
-        type="checkbox"
-        data-testid="test-todo-complete-toggle"
-        aria-label="Mark task as complete"
-      />
-      <span class="box" aria-hidden="true">
-        <svg width="13" height="10" viewBox="0 0 13 10" fill="none" aria-hidden="true">
-          <polyline points="1.5,5.5 5,9 11.5,1" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-    </label>
+  <!-- ══ CARD VIEW ══ -->
+  <div class="card-inner" id="card-view">
 
-    <div class="title-block">
-      <h2 data-testid="test-todo-title" id="task-title">Update Patient Intake Records</h2>
+    <div class="card-header">
+      <label class="toggle-wrap">
+        <input type="checkbox" data-testid="test-todo-complete-toggle" aria-label="Mark task as complete" />
+        <span class="box" aria-hidden="true">
+          <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+            <polyline points="1.5,5.5 5,9 11.5,1" stroke="#141414" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </label>
+      <div class="title-block">
+        <h2 data-testid="test-todo-title" id="task-title">Update Patient Intake Records</h2>
+      </div>
+    </div>
+
+    <div class="meta-row">
+      <span data-testid="test-todo-priority" id="priority-badge" class="priority-high" aria-label="Priority: High">⚡ High</span>
+      <span data-testid="test-todo-status" id="status-badge" class="status-in-progress">In Progress</span>
+      <span data-testid="test-todo-overdue-indicator" id="overdue-indicator" aria-live="polite">⚠ Overdue</span>
+    </div>
+
+    <div class="status-control-wrap">
+      <div class="section-label">Change Status</div>
+      <select data-testid="test-todo-status-control" id="status-control" aria-label="Change task status">
+        <option value="Pending">Pending</option>
+        <option value="In Progress" selected>In Progress</option>
+        <option value="Done">Done</option>
+      </select>
+    </div>
+
+    <div class="description-wrap">
+      <p data-testid="test-todo-description" id="task-desc-preview">
+        Review and update all patient intake forms submitted this week...
+      </p>
+      <div data-testid="test-todo-collapsible-section" id="collapsible" role="region" aria-label="Full description">
+        <p class="full-desc" id="task-desc-full">
+          Review and update all patient intake forms submitted this week. Ensure
+          records are accurate, properly dated, and filed in the correct folders
+          before end-of-day handover at the OSGF Clinic. Cross-reference with
+          the physical register and flag any discrepancies to the supervising officer.
+        </p>
+      </div>
+      <button data-testid="test-todo-expand-toggle" id="expand-toggle" aria-expanded="false" aria-controls="collapsible">
+        <span class="expand-arrow" id="expand-arrow">▾</span>
+        <span id="expand-label">Show more</span>
+      </button>
+    </div>
+
+    <ul data-testid="test-todo-tags" role="list" aria-label="Task tags">
+      <li data-testid="test-todo-tag-work">work</li>
+      <li data-testid="test-todo-tag-urgent">mandatory</li>
+    </ul>
+
+    <div class="dates-row" id="dates-row">
+      <div class="date-item">
+        <span class="date-label">Due date</span>
+        <time data-testid="test-todo-due-date" id="due-date-display" datetime="">—</time>
+      </div>
+      <div class="date-item time-right">
+        <span class="date-label">Remaining</span>
+        <span data-testid="test-todo-time-remaining" id="time-remaining" aria-live="polite" aria-label="Time remaining">Calculating…</span>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button data-testid="test-todo-edit-button" id="edit-button" class="action-btn" aria-label="Edit task" onclick="openEditForm()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button data-testid="test-todo-delete-button" class="action-btn" aria-label="Delete task" onclick="handleDelete()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Delete
+      </button>
     </div>
   </div>
 
-  <div class="meta-row">
-    <span
-      data-testid="test-todo-priority"
-      class="priority-high"
-      aria-label="Priority: High"
-    >⚡ High</span>
-    <span
-      data-testid="test-todo-status"
-      id="status-badge"
-      aria-live="polite"
-    >In Progress</span>
-  </div>
+  <!-- ══ EDIT FORM ══ -->
+  <div data-testid="test-todo-edit-form" id="edit-form" role="form" aria-label="Edit task form">
+    <h3 class="edit-heading">Edit Task</h3>
 
-  <p data-testid="test-todo-description" id="task-description">
-    Review and update all patient intake forms submitted this week. Ensure
-    records are accurate, properly dated, and filed in the correct folders
-    before end-of-day handover at the clinic.
-  </p>
-
-  <ul data-testid="test-todo-tags" role="list" aria-label="Task tags">
-    <li data-testid="test-todo-tag-work">work</li>
-    <li data-testid="test-todo-tag-urgent">mandatory</li>
-  </ul>
-
-  <div class="dates-row">
-    <div class="date-item">
-      <span class="date-label">Due date</span>
-      <time data-testid="test-todo-due-date" id="due-date-display" datetime="">—</time>
+    <div class="form-group">
+      <label for="edit-title-input">Task Title</label>
+      <input type="text" data-testid="test-todo-edit-title-input" id="edit-title-input" placeholder="Enter task title" />
     </div>
-    <div class="date-item" style="text-align:right;">
-      <span class="date-label">Remaining</span>
-      <span
-        data-testid="test-todo-time-remaining"
-        id="time-remaining"
-        aria-live="polite"
-        aria-label="Time remaining"
-      >Calculating…</span>
-    </div>
-  </div>
 
-  <div class="actions-row">
-    <button
-      data-testid="test-todo-edit-button"
-      class="action-btn"
-      aria-label="Edit task"
-      onclick="openEditModal()"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      Edit
-    </button>
-    <button
-      data-testid="test-todo-delete-button"
-      class="action-btn"
-      aria-label="Delete task"
-      onclick="handleDelete()"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-      Delete
-    </button>
+    <div class="form-group">
+      <label for="edit-desc-input">Description</label>
+      <textarea data-testid="test-todo-edit-description-input" id="edit-desc-input" placeholder="Enter task description"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="edit-priority-select">Priority</label>
+        <select data-testid="test-todo-edit-priority-select" id="edit-priority-select">
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="edit-due-date-input">Due Date</label>
+        <input type="date" data-testid="test-todo-edit-due-date-input" id="edit-due-date-input" />
+      </div>
+    </div>
+
+    <div class="edit-actions">
+      <button data-testid="test-todo-cancel-button" onclick="closeEditForm()">Cancel</button>
+      <button data-testid="test-todo-save-button" onclick="saveEdit()">Save Changes</button>
+    </div>
   </div>
 </article>
 
-<!-- ── EDIT MODAL ── -->
-<div
-  class="modal-overlay"
-  id="edit-modal"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="modal-heading"
->
-  <div class="modal">
-    <h3 class="modal-title" id="modal-heading">Edit Task</h3>
-
-    <div class="form-group">
-      <label for="edit-title">Task Title</label>
-      <input type="text" id="edit-title" placeholder="Enter task title" />
-    </div>
-
-    <div class="form-group">
-      <label for="edit-description">Description</label>
-      <textarea id="edit-description" placeholder="Enter task description"></textarea>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
-      <button class="btn-save" onclick="saveEdit()">Save Changes</button>
-    </div>
-  </div>
-</div>
-
 <script>
-  const DUE = new Date('2026-04-16T17:00:00Z');
+  // ══ STATE ══
+  let state = {
+    title:       'Update Patient Intake Records',
+    description: 'Review and update all patient intake forms submitted this week. Ensure records are accurate, properly dated, and filed in the correct folders before end-of-day handover at the OSGF Clinic. Cross-reference with the physical register and flag any discrepancies to the supervising officer.',
+    priority:    'High',
+    status:      'In Progress',
+    due:         new Date('2026-04-16T17:00:00Z'),
+    done:        false,
+  };
+  let snapshot = null;
 
-  const card        = document.querySelector('[data-testid="test-todo-card"]');
-  const checkbox    = document.querySelector('[data-testid="test-todo-complete-toggle"]');
-  const statusBadge = document.getElementById('status-badge');
-  const dueDateEl   = document.getElementById('due-date-display');
-  const remainEl    = document.getElementById('time-remaining');
-  const modal       = document.getElementById('edit-modal');
-  const editTitle   = document.getElementById('edit-title');
-  const editDesc    = document.getElementById('edit-description');
-  const taskTitle   = document.getElementById('task-title');
-  const taskDesc    = document.getElementById('task-description');
+  // ══ ELEMENTS ══
+  const card           = document.querySelector('[data-testid="test-todo-card"]');
+  const cardView       = document.getElementById('card-view');
+  const editFormEl     = document.getElementById('edit-form');
+  const checkbox       = document.querySelector('[data-testid="test-todo-complete-toggle"]');
+  const statusBadge    = document.getElementById('status-badge');
+  const statusControl  = document.getElementById('status-control');
+  const priorityBadge  = document.getElementById('priority-badge');
+  const priorityInd    = document.querySelector('[data-testid="test-todo-priority-indicator"]');
+  const overdueEl      = document.getElementById('overdue-indicator');
+  const dueDateEl      = document.getElementById('due-date-display');
+  const remainEl       = document.getElementById('time-remaining');
+  const datesRow       = document.getElementById('dates-row');
+  const taskTitleEl    = document.getElementById('task-title');
+  const descPreview    = document.getElementById('task-desc-preview');
+  const descFull       = document.getElementById('task-desc-full');
+  const collapsible    = document.getElementById('collapsible');
+  const expandToggle   = document.getElementById('expand-toggle');
+  const expandArrow    = document.getElementById('expand-arrow');
+  const expandLabel    = document.getElementById('expand-label');
+  const editButton     = document.getElementById('edit-button');
+  const editTitleInput = document.getElementById('edit-title-input');
+  const editDescInput  = document.getElementById('edit-desc-input');
+  const editPriority   = document.getElementById('edit-priority-select');
+  const editDueDate    = document.getElementById('edit-due-date-input');
 
-  // ── TIME ────────────────────────────────────────────────
-  function formatDueDate(date) {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  // ══ RENDER ══
+  function renderCard() {
+    const { title, description, priority, status, done } = state;
+
+    // Title
+    taskTitleEl.textContent = title;
+    card.setAttribute('aria-label', `Task: ${title}`);
+
+    // Description
+    const preview = description.length > 80 ? description.slice(0, 80) + '…' : description;
+    descPreview.textContent = preview;
+    descFull.textContent    = description;
+
+    // Priority
+    const pLow = priority.toLowerCase();
+    const icons = { high: '⚡', medium: '◆', low: '○' };
+    priorityBadge.className = `priority-${pLow}`;
+    priorityBadge.textContent = `${icons[pLow] || ''} ${priority}`;
+    priorityBadge.setAttribute('aria-label', `Priority: ${priority}`);
+    priorityInd.className = `priority-${pLow}-ind`;
+
+    // Status
+    const sKey = status.toLowerCase().replace(' ', '-');
+    statusBadge.textContent = status;
+    statusBadge.className   = `status-${sKey}`;
+    statusControl.value     = status;
+
+    // Checkbox
+    checkbox.checked = done;
+    card.classList.toggle('done-card', done);
+
+    updateTime();
   }
+
+  // ══ TIME ══
+  function formatDueDate(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function toInputDate(d) { return d.toISOString().slice(0, 10); }
 
   function computeRemaining(now, due) {
     const diff = due - now;
@@ -648,73 +615,108 @@
     const over = diff < 0;
     let text, cls;
 
-    if (abs < 120000)            { text = 'Due now!'; cls = 'time-now'; }
-    else if (!over && mins < 60) { text = `Due in ${mins} min${mins !== 1 ? 's' : ''}`; cls = 'time-soon'; }
-    else if (!over && hrs < 24)  { text = hrs === 1 ? 'Due in 1 hour' : `Due in ${hrs} hours`; cls = 'time-soon'; }
-    else if (!over && days === 1){ text = 'Due tomorrow'; cls = 'time-soon'; }
-    else if (!over)              { text = `Due in ${days} days`; cls = 'time-ok'; }
-    else if (over && hrs < 24)   { text = hrs < 1 ? `Overdue by ${mins} mins` : `Overdue by ${hrs} hour${hrs !== 1 ? 's' : ''}`; cls = 'time-overdue'; }
-    else                         { text = `Overdue by ${days} day${days !== 1 ? 's' : ''}`; cls = 'time-overdue'; }
+    if (abs < 120000)             { text = 'Due now!';                                           cls = 'time-now'; }
+    else if (!over && mins < 60)  { text = `Due in ${mins} min${mins!==1?'s':''}`;               cls = 'time-soon'; }
+    else if (!over && hrs < 24)   { text = `Due in ${hrs} hour${hrs!==1?'s':''}`;                cls = 'time-soon'; }
+    else if (!over && days === 1) { text = 'Due tomorrow';                                        cls = 'time-soon'; }
+    else if (!over)               { text = `Due in ${days} days`;                                 cls = 'time-ok'; }
+    else if (over && mins < 60)   { text = `Overdue by ${mins} min${mins!==1?'s':''}`;           cls = 'time-overdue'; }
+    else if (over && hrs < 24)    { text = `Overdue by ${hrs} hour${hrs!==1?'s':''}`;            cls = 'time-overdue'; }
+    else                          { text = `Overdue by ${days} day${days!==1?'s':''}`;           cls = 'time-overdue'; }
 
-    return { text, cls };
+    return { text, cls, over };
   }
 
   function updateTime() {
-    const { text, cls } = computeRemaining(new Date(), DUE);
-    dueDateEl.textContent = 'Due ' + formatDueDate(DUE);
-    dueDateEl.setAttribute('datetime', DUE.toISOString());
-    remainEl.textContent = text;
-    remainEl.className = cls;
-    remainEl.setAttribute('aria-label', `Time remaining: ${text}`);
-  }
+    dueDateEl.textContent = 'Due ' + formatDueDate(state.due);
+    dueDateEl.setAttribute('datetime', state.due.toISOString());
 
-  // ── CHECKBOX ────────────────────────────────────────────
-  checkbox.addEventListener('change', () => {
-    const done = checkbox.checked;
-    card.classList.toggle('done-card', done);
-    statusBadge.textContent = done ? 'Done' : 'In Progress';
-    statusBadge.classList.toggle('status-done', done);
-  });
-
-  // ── EDIT MODAL ──────────────────────────────────────────
-  function openEditModal() {
-    editTitle.value = taskTitle.textContent.trim();
-    editDesc.value  = taskDesc.textContent.trim();
-    modal.classList.add('open');
-    setTimeout(() => editTitle.focus(), 50);
-  }
-
-  function closeEditModal() {
-    modal.classList.remove('open');
-  }
-
-  function saveEdit() {
-    const newTitle = editTitle.value.trim();
-    const newDesc  = editDesc.value.trim();
-
-    if (!newTitle) {
-      editTitle.focus();
-      editTitle.style.borderColor = '#e74c3c';
+    if (state.done) {
+      remainEl.textContent = 'Completed';
+      remainEl.className   = 'time-done';
+      overdueEl.classList.remove('visible');
+      datesRow.classList.remove('overdue-dates');
+      card.classList.remove('overdue-card');
       return;
     }
 
-    taskTitle.textContent = newTitle;
-    taskDesc.textContent  = newDesc;
-    card.setAttribute('aria-label', `Task: ${newTitle}`);
-    closeEditModal();
+    const { text, cls, over } = computeRemaining(new Date(), state.due);
+    remainEl.textContent = text;
+    remainEl.className   = cls;
+    remainEl.setAttribute('aria-label', `Time remaining: ${text}`);
+    overdueEl.classList.toggle('visible', over);
+    datesRow.classList.toggle('overdue-dates', over);
+    card.classList.toggle('overdue-card', over);
   }
 
-  // Close modal on overlay click
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeEditModal();
+  // ══ EXPAND / COLLAPSE ══
+  let expanded = false;
+  expandToggle.addEventListener('click', () => {
+    expanded = !expanded;
+    collapsible.classList.toggle('expanded', expanded);
+    expandArrow.classList.toggle('open', expanded);
+    expandLabel.textContent = expanded ? 'Show less' : 'Show more';
+    expandToggle.setAttribute('aria-expanded', String(expanded));
   });
 
-  // Close modal on Escape key
+  // ══ STATUS CONTROL ══
+  statusControl.addEventListener('change', () => {
+    state.status = statusControl.value;
+    state.done   = state.status === 'Done';
+    renderCard();
+  });
+
+  // ══ CHECKBOX ══
+  checkbox.addEventListener('change', () => {
+    state.done   = checkbox.checked;
+    state.status = checkbox.checked ? 'Done' : 'Pending';
+    renderCard();
+  });
+
+  // ══ EDIT FORM ══
+  function openEditForm() {
+    snapshot = { ...state, due: new Date(state.due) };
+    editTitleInput.value = state.title;
+    editDescInput.value  = state.description;
+    editPriority.value   = state.priority;
+    editDueDate.value    = toInputDate(state.due);
+    cardView.style.display = 'none';
+    editFormEl.classList.add('active');
+    setTimeout(() => editTitleInput.focus(), 50);
+  }
+
+  function closeEditForm() {
+    if (snapshot) { state = snapshot; snapshot = null; }
+    editFormEl.classList.remove('active');
+    cardView.style.display = '';
+    editButton.focus();
+    renderCard();
+  }
+
+  function saveEdit() {
+    const newTitle = editTitleInput.value.trim();
+    if (!newTitle) {
+      editTitleInput.focus();
+      editTitleInput.style.borderColor = '#e74c3c';
+      setTimeout(() => editTitleInput.style.borderColor = '', 1500);
+      return;
+    }
+    state.title       = newTitle;
+    state.description = editDescInput.value.trim() || state.description;
+    state.priority    = editPriority.value;
+    state.due         = editDueDate.value ? new Date(editDueDate.value + 'T17:00:00Z') : state.due;
+    snapshot = null;
+    editFormEl.classList.remove('active');
+    cardView.style.display = '';
+    editButton.focus();
+    renderCard();
+  }
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeEditModal();
+    if (e.key === 'Escape' && editFormEl.classList.contains('active')) closeEditForm();
   });
 
-  // ── DELETE ──────────────────────────────────────────────
+  // ══ DELETE ══
   function handleDelete() {
     if (confirm('Delete this task?')) {
       card.style.transition = 'opacity .3s, transform .3s';
@@ -724,9 +726,9 @@
     }
   }
 
-  // ── INIT ────────────────────────────────────────────────
-  updateTime();
-  setInterval(updateTime, 60000);
+  // ══ INIT ══
+  renderCard();
+  setInterval(updateTime, 30000);
 </script>
 </body>
 </html>
